@@ -17,7 +17,7 @@ function render_status(url, title, selection) {
 	"title: " + title + "; " + "selection: " + selection;
 }
 
-function add_buttons(templates, contents) {
+function add_buttons(templates, contents, new_style) {
     var container = document.getElementById("container");
 
     for (var i = 0; i < templates.length; i++) {
@@ -27,28 +27,37 @@ function add_buttons(templates, contents) {
 	button.appendChild(document.createTextNode(text));
 
 	// damn javascript closure weird stuff
-	button.onclick = function(template) {
+	button.onclick = function(template, new_style) {
 	    return function() {
-		capture(template, contents);
+		capture(template, contents, new_style);
 	    };
-	}(template);
+	}(template, new_style);
 
 	container.appendChild(button);
     }
 }
 
-function capture(template, contents) {
-    var uri = 'org-protocol://capture:/';
-    uri += template.key + '/';
-    uri += encodeURIComponent(contents.url) + '/';
-    uri += encodeURIComponent(contents.title) + '/';
-    uri += encodeURIComponent(contents.selection);
+function capture(template, contents, new_style) {
+    var uri = '';
+    if (new_style) {
+	uri += 'org-protocol://capture?';
+	uri += 'template=' + template.key;
+	uri += '&url=' + encodeURIComponent(contents.url);
+	uri += '&title=' + encodeURIComponent(contents.title);
+	uri += '&body=' + encodeURIComponent(contents.selection);
+    } else {
+	uri += 'org-protocol://capture:/';
+	uri += template.key + '/';
+	uri += encodeURIComponent(contents.url) + '/';
+	uri += encodeURIComponent(contents.title) + '/';
+	uri += encodeURIComponent(contents.selection);
+    }
     console.log('capturing ' + uri);
     chrome.tabs.update(null, {url: uri});
     window.close();
 }
 
-function add_key_listener(templates, contents) {
+function add_key_listener(templates, contents, new_style) {
     var keys = {};
     for (var i = 0; i < templates.length; i++) {
 	keys[templates[i].key] = templates[i];
@@ -63,7 +72,7 @@ function add_key_listener(templates, contents) {
 	    }
 
 	    if (c in keys) {
-		capture(keys[c], contents);
+		capture(keys[c], contents, new_style);
 	    }
 	}
     };
@@ -85,11 +94,12 @@ document.addEventListener('DOMContentLoaded', function() {
 			    selection: selection};
 
 	    chrome.storage.sync.get({
-		template_list: [{key: 'L', name: 'simple link'}]
+		template_list: [{key: 'L', name: 'simple link'}],
+		new_style: true
 	    }, function(settings) {
 		var templates = settings.template_list;
-		add_buttons(templates, contents);
-		add_key_listener(templates, contents);
+		add_buttons(templates, contents, settings.new_style);
+		add_key_listener(templates, contents, settings.new_style);
 	    });
 	});
     });

@@ -103,7 +103,11 @@ function get_form_values() {
 	    templates.push(template);
 	}
     }
-    return templates;
+    var new_style = document.getElementById("new-style").checked;
+    var values = {new_style: new_style,
+		  templates: templates};
+
+    return values;
 }
 
 function get_key_error(key) {
@@ -117,7 +121,7 @@ function get_key_error(key) {
 }
     
 function get_options_errors() {
-    var templates = get_form_values();
+    var templates = get_form_values()["templates"];
     var keys = {};
     var status = "";
     for (var i = 0; i < templates.length; i++) {
@@ -139,14 +143,17 @@ function get_options_errors() {
 }
 
 function save_options() {
-    var templates = get_form_values();
+    var values = get_form_values();
+    var templates = values["templates"];
+
     var errors = get_options_errors(templates);
     if (errors) {
 	write_status(errors + "Not saved!");
 	return;
     }
     chrome.storage.sync.set({
-	template_list: templates
+	template_list: templates,
+	new_style: values["new_style"]
     }, function() {
 	write_status("options saved!", 5000);
     });
@@ -156,12 +163,14 @@ function restore_options() {
     var container = document.getElementById("inputs");
 
     chrome.storage.sync.get({
-	template_list: [{key: 'L', name: 'simple link'}]
+	template_list: [{key: 'L', name: 'simple link'}],
+	new_style: true
     }, function(settings) {
 	var xs = settings.template_list;
 	for (var i = 0; i < xs.length; i++) {
 	    container.appendChild(create_template_form(xs[i]));
 	}
+	document.getElementById("new-style").checked = settings.new_style;
     });
 
     document.getElementById("new-button").onclick = new_onclick;
