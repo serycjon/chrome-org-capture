@@ -3,20 +3,27 @@
   <head>
     <title>Org-capture Extension's settings</title>
     <script src="settings.js"></script>
+    <style>
+      body>.main-container{max-width:800px;margin:50px auto}
+      header{max-width:700px;margin:0 auto 50px auto;font-size:48px}
+    </style>
   </head>
   <body>
-    <div>
+    <div class="main-container">
+      <header>Org-capture Chrome extension</header>
+      <h2>Templates</h2>
+      </hr>
       <p>You can set your custom capture template keys and names
       here. A key has to be one character long. Don't forget to
       save!</p>
       <div id="inputs"></div>
-      <button id="new-button">new</button>
-      <button id="save-button">SAVE</button>
-      <span id="status"></span><br>
-      <a href="" id="reset-button">factory defaults</a>
-    </div>
-    <div>
+      <button id="new-button">add template</button>
+      <h2>Other settings</h2>
       <input id="new-style" name="new-style" type="checkbox" value="new"/> Use the new org-protocol link style
+      <div>
+	<button id="save-button">SAVE settings</button> <span id="status"></span></br>
+	<a href="" id="reset-button">factory defaults</a>
+      </div>
     </div>
   </body>
 </html>
